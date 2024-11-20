@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import { useState } from "react";
 import { z } from "zod";
-import { User } from "../utils/validation";
+import { UserLogin  } from "../utils/validation";
 import { UserContext } from "../components/UserContextProvider";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link} from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -12,38 +12,40 @@ function Login() {
 
   const userContext = useContext(UserContext);
   const navigate = useNavigate();
-
   const validate = () => {
     try {
-      const user = User.parse({
+      const user = UserLogin.parse({
         email,
         password,
       });
-      console.log(user);
       setErrors(null);
+      return true;
     } catch (err) {
+      console.log(err)
       if (err instanceof z.ZodError) {
         setErrors(err.format());
       }
-      return false
+      return false;
     }
   };
   function handleLogin() {
     if (!validate()) {
+      console.log("hello")
         return false;
     }
     const query = new URLSearchParams({
         email,
         password
     }).toString()
+    console.log(query)
     fetch(`http://localhost:5001/users?${query}`)
     .then((r)=> r.json())
     .then((users)=> users[0])
     .then((user)=> {
         if (user) {
-            console.log(user)
             userContext.onChange(user)
-            navigate('/')
+            console.log("hi")
+            navigate("/")
         } else {
             setErrors('Invalid user')
         }
@@ -52,14 +54,14 @@ function Login() {
   return (
     <div className="prose flex flex-col gap-5">
       <h1>Login</h1>
-      <input type="email" placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      {errors?.email && <div className="text-red-400">{errors?.email?._errors}</div>}
+      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      {errors?.email && <div className="text-red-400">{errors?.email?._errors[0]}</div>}
 
-      <input placeholder="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      {errors?.password && <div className="text-red-400">{errors?.password?._errors}</div>}
+      <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      {errors?.password && <div className="text-red-400">{errors?.password?._errors[0]}</div>}
 
       <button onClick={handleLogin}>Login</button>
-      {errors && <div style={{color: 'red'}}>{errors}</div>}
+      <Link to="/register">Зарегистрироваться</Link>
     </div>
   );
 }

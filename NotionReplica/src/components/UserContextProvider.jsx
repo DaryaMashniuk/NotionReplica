@@ -6,34 +6,33 @@ function UserContextProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    const id = localStorage.getItem("userId");
-    if (id) {
-      fetch(`http://localhost:5001/users?id=${id}`)
-        .then((r) => r.json())
-        .then((users) => users[0])
-        .then((user) => {
+    const fetchUser = async () => {
+      setLoading(true);
+      const id = localStorage.getItem("userId");
+
+      if (id) {
+        try {
+          const response = await fetch(`http://localhost:5001/users?id=${id}`);
+          const users = await response.json();
+          const user = users[0];
           setUser(user);
-          setLoading(false);
-        })
-        .finally(()=> {
-            setLoading(false)
-        })
-    } else {
-        setLoading(false)
-    }
+        } catch (err) {
+          console.error("Error fetching user", err);
+        }
+      }
+
+      setLoading(false);
+    };
+    fetchUser();
   }, []);
 
-  useEffect(()=> {
+  useEffect(() => {
     if (user?.id) {
-        localStorage.setItem('userId', user.id);
+      localStorage.setItem("userId", user.id);
     }
-  },[user?.id])
-  return (
-    <UserContext.Provider value={{user, onChange: setUser , loading}}>
-        {children}
-    </UserContext.Provider>
-  );
+  }, [user?.id]);
+
+  return <UserContext.Provider value={{ user, onChange: setUser, loading }}>{children}</UserContext.Provider>;
 }
 
 export default UserContextProvider;
