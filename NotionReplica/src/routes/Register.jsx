@@ -1,20 +1,22 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { z } from "zod";
 import { UserRegister } from "../utils/validation";
-import { Form, Link, redirect, useNavigate } from "react-router-dom";
+import { Form, Link, redirect , useNavigate, useActionData} from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-
+import { UserContext } from "../components/UserContextProvider";
 
 function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("")
     const [errors, setErrors] = useState(null);
-    
+    const userContext = useContext(UserContext);
+    const navigate = useNavigate();
+    const actionData = useActionData();
+
     const validate = () => {
         try {
-          console.log(":hi")
           UserRegister.parse({
             email,
             password,
@@ -29,15 +31,12 @@ function Register() {
           return false;
         }
       };
-      // const handleRegister = ()=> {
-      //   if (!validate()) {
-      //       return false;
-      //   }
-      //   if (password === repeatPassword) {
-            
-      //   }
 
-      // }
+      if (actionData) {
+        userContext.onChange(actionData);
+        navigate('/')
+      }
+
   return (
     <div className="prose flex flex-col gap-5">
       <h1>Sign up</h1>
@@ -55,7 +54,7 @@ function Register() {
         <input placeholder="Repeat password" type="password" value={repeatPassword} onChange={(e) => setRepeatPassword(e.target.value)} />
         {errors?.repeatPassword && <div className="text-red-400">{errors?.repeatPassword?._errors[0]}</div>}
         <input type="hidden" name="registerDate" value={Date().toLocaleString()}/>
-        <button type="submit" /*onClick={handleRegister}*/>Register</button>
+        <button type="submit">Register</button>
       </Form>
       <Link to="/login">Already have an account? Log in</Link>
     </div>
@@ -87,7 +86,6 @@ const registerUserAction =async ({request}) => {
     registerDate: formData.get('registerDate')
   }
   const postUser = await registerUser(newUser)
-
-  return redirect("/")
+  return postUser//redirect("/")
 }
 export {Register , registerUserAction};

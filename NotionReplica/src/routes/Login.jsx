@@ -14,7 +14,7 @@ function Login() {
   const navigate = useNavigate();
   const validate = () => {
     try {
-      const user = UserLogin.parse({
+      UserLogin.parse({
         email,
         password,
       });
@@ -30,7 +30,6 @@ function Login() {
   };
   function handleLogin() {
     if (!validate()) {
-      console.log("hello")
         return false;
     }
     const query = new URLSearchParams({
@@ -44,7 +43,6 @@ function Login() {
     .then((user)=> {
         if (user) {
             userContext.onChange(user)
-            console.log("hi")
             navigate("/")
         } else {
             setErrors('Invalid user')
