@@ -7,6 +7,9 @@ import MainLayout from "./routes/MainLayout";
 import Notes from "./routes/Notes";
 import About from "./routes/About";
 import {Register, registerUserAction} from "./routes/Register";
+import CreateNewNote from "./routes/CreateNewNote";
+import ViewNote from "./routes/viewNote";
+import UpdateNote from "./routes/UpdateNote";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +26,9 @@ const router = createBrowserRouter(
       >
         <Route path="/" element={<About/>}/>
         <Route path="/notes" element={<Notes/>} />
+        <Route path="/createNewNote" element={<CreateNewNote/>} />
+        <Route path="/viewNote" element={<ViewNote/>} />
+        <Route path="/editNote" element={<UpdateNote/>} />
       </Route>
     </>
   )

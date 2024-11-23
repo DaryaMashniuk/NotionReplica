@@ -76,7 +76,6 @@ const registerUser =async ({id, email, password, registerDate})=> {
 }
 
 const registerUserAction =async ({request}) => {
-
   const formData = await request.formData();
 
   const newUser = {

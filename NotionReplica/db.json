@@ -42,5 +42,26 @@
       "password": "123456Aa",
       "registerDate": "Wed Nov 20 2024 23:35:02 GMT+0300 (Москва, стандартное время)"
     }
+  ],
+  "notes": [
+    {
+      "id": "6",
+      "userId": "e12395de-c296-49f2-80cb-7d327ae4a123",
+      "title": "Hello",
+      "body": "srtryuidgfhnjdfytuiollkjhgfdfghnjmkloiuygtfvbnmkiuytfcvbnmkiuyg"
+    },
+    {
+      "id": "2b6d",
+      "userId": "5e58df68-b765-41a2-beb1-6c09897ecba6",
+      "title": "finish homework",
+      "body": "till Monday"
+    },
+    {
+      "id": "cfa3",
+      "userId": "5e58df68-b765-41a2-beb1-6c09897ecba6",
+      "title": "styjklo",
+      "body": "srtghyjuilo",
+      "created": "Sat Nov 23 2024 17:33:41 GMT+0300 (Москва, стандартное время)"
+    }
   ]
 }
