@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../components/UserContextProvider";
 import Note from "../components/Note/Note";
 import { Link } from "react-router-dom";
+import API from "../utils/API";
 
 function Notes() {
   const [notes, setNotes] = useState([]);
@@ -9,24 +10,16 @@ function Notes() {
   const userId = userContext.user.id;
 
   useEffect(() => {
-    const newNotes = getNotes();
-    setNotes(newNotes);
+    getNotes();
   }, []);
 
   const getNotes = async () => {
-    const res = await fetch(`http://localhost:5001/notes?userId=${userId}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(),
-    });
-    if (!res.ok) {
-      throw new Error("Failed to get notes.");
+    try {
+      const fetchedNotes = await API.fetchNotes(userId);
+      setNotes(fetchedNotes);
+    } catch (error) {
+      console.error("Error fetching notes:", error);
     }
-
-    const notes = await res.json();
-    setNotes(notes);
-    console.log(notes);
-    return notes;
   };
 
   const handleDelete = (id) => {
@@ -34,16 +27,18 @@ function Notes() {
   };
 
   return (
-    <div className="prose flex flex-col gap-1">
-      <h1>Notes</h1>
-      <Link to="/createNewNote">Add new note</Link>
-      {notes.length > 0 ? (
-        notes.map((note) => {
-          return <Note key={note.id} note={note} onDelete={()=>handleDelete(note.id)}/>;
-        })
-      ) : (
-        <div>You don't have any notes</div>
-      )}
+    <div className="flex flex-col items-center mx-auto">
+      <div className="w-[75%] max-w-2xl prose mx-auto">
+        <h1 className="text-center">Notes</h1>
+        <Link to="/createNewNote" className="text-center block mb-4">Add new note</Link>
+        {notes.length > 0 ? (
+          notes.slice().reverse().map((note) => {
+            return <Note key={note.id} note={note} onDelete={() => handleDelete(note.id)} />;
+          })
+        ) : (
+          <div className="text-center">You don't have any notes</div>
+        )}
+      </div>
     </div>
   );
 }

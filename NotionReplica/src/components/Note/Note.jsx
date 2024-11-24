@@ -3,44 +3,38 @@ import edit from "../../assets/edit.png";
 import bin from "../../assets/delete.png";
 import { Link } from "react-router-dom";
 import styles from "./Note.module.css";
+import API from "../../utils/API";
 
-function Note({ note , onDelete }) {
-  const deleteNote = async (noteId) => {
-    try {
-      const res = await fetch(`http://localhost:5001/notes/${noteId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to delete note.");
-      }
-      onDelete(note.id)
-    } catch (error) {
-      console.error("Error deleting note:", error);
-    }
+function Note({ note, onDelete }) {
+  
+  const deleteNote = () => {
+    API.deleteNote(note.id);
+    onDelete(note.id);
   };
 
   return (
-    <div className={`bg-white shadow-md rounded p-4 m-4 flex items-center justify-between ${styles.noteContainer}`}>
-      <div className="flex flex-col w-full">
-        <div className={styles.noteHeader}>
-          <Link to="/viewNote">
-            <h5 className="text-lg font-bold text-gray-800 mb-2">{note.title}</h5>
+    <div className={`bg-white shadow-md rounded p-4 mb-4 flex flex-col w-full max-w-lg mx-auto ${styles.noteContainer}`}>
+      <div className="flex justify-between items-start">
+        <div className={styles.title}>
+          <Link to={`/notes/${note.id}`} className={styles.text}>
+            <h5 className=" text-lg font-bold text-gray-800 mb-1 ">{note.title}</h5>
+            <p className="text-gray-500 text-sm">{note.created}</p>
           </Link>
-          <div className="flex flex-row">
-            <button onClick={() => deleteNote(note.id)}>
-              <img src={bin} alt="Delete" />
-            </button>
-            <Link to="/editNote">
-              <img src={edit} alt="Edit" />
-            </Link>
-          </div>
         </div>
-        <Link to="/viewNote">
-          <p className="text-gray-600">{note.body}</p>
-        </Link>
+
+        <div className="flex flex-row ml-4 space-x-2">
+          <button className={styles.button} onClick={deleteNote}>
+            <img src={bin} alt="Delete" className="h-6 w-6" />
+          </button>
+          <Link to={`/notes/${note.id}/edit`}>
+            <img src={edit} alt="Edit" className="h-6 w-6" />
+          </Link>
+        </div>
       </div>
+
+      <Link to={`/notes/${note.id}`} className={styles.text}>
+        <p className="text-gray-600 mt-2 break-all">{note.body}</p>
+      </Link>
     </div>
   );
 }

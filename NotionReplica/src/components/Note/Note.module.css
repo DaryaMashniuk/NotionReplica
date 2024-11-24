@@ -10,3 +10,22 @@
     margin-top: 0;
     margin-right: 10px;
   }
+
+.title p {
+    display: inline;
+    margin:0;
+}
+.title {
+    width:80%;
+    flex-wrap: wrap;
+}
+
+.text h5{
+    word-wrap: break-word;
+}
+.text{
+    text-decoration: none;
+}
+.button{
+    cursor: pointer;
+}

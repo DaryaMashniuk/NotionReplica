@@ -1,44 +1,65 @@
-import { Link } from "react-router-dom";
-import { useState, useContext } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { UserContext } from "../components/UserContextProvider";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import API from "../utils/API";
+import NoteForm from "../components/NoteForm";
+import NotePageHeader from "../components/NotePageHeader";
 
-function UpdateNote(props) {
-    const [title,setTitle] = useState("");
-    const [body,setBody] = useState("");
-    const userContext = useContext(UserContext)
-    const userId = userContext.user.id;
+function UpdateNote() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  
+  // Состояние для заметки (содержит все данные, включая created и userId)
+  const [note, setNote] = useState({
+    title: "",
+    body: "",
+    created: "", // Дата создания
+    userId: "",  // userId
+  });
 
-    const newNote = {
-        //id : uuidv4(),
-        userId: userId,
-        title : title,
-        body : body,
-        created: Date().toLocaleString()
+  useEffect(() => {
+    const fetchNote = async () => {
+      try {
+        const fetchedNote = await API.fetchNoteById(id);
+        setNote({
+          title: fetchedNote.title,
+          body: fetchedNote.body,
+          created: fetchedNote.created,  // Сохраняем оригинальную дату создания
+          userId: fetchedNote.userId,    // Сохраняем userId
+        });
+      } catch (error) {
+        console.error("Failed to fetch note", error);
+      }
+    };
+
+    fetchNote();
+  }, [id]);
+
+  const handleUpdate = async () => {
+    try {
+      // Отправляем только обновленные данные title и body, оставляя created и userId неизменными
+      await API.updateNote(id, {
+        ...note,           // Сохраняем все поля
+        title: note.title, // Обновляем только title
+        body: note.body,   // Обновляем только body
+      });
+      navigate(`/notes/${id}`);  // После успешного обновления, перенаправляем на страницу заметки
+    } catch (error) {
+      console.error("Failed to update note", error);
     }
-
-    const addNewNote= async()=> {
-        const res = await fetch(`http://localhost:5001/notes`, {
-            method: "POST",
-            headers: {'Content-Type' : 'application/json'},
-            body: JSON.stringify(newNote)
-        })
-        if (!res.ok) {
-            throw new Error("Failed to add note")
-        }
-        const postNewNote = await res.json();
-        return postNewNote
-    }
+  };
 
   return (
-    <div className="prose flex flex-col gap-5">
-      <Link to="/notes">Back</Link>
-      <h1>Edit note</h1>
-      <input type="text" placeholder="Name" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <input placeholder="Note text..." type="test" value={body} onChange={(e) => setBody(e.target.value)} />
-
-      <button onClick={addNewNote}>Add new note</button>
-
+    <div className="container mx-auto p-4 flex flex-col items-center">
+      <NotePageHeader to={`/notes/${id}`} />
+      <h1 className="text-3xl font-bold mb-6">Edit Note</h1>
+      <NoteForm
+        title={note.title}
+        setTitle={(value) => setNote((prev) => ({ ...prev, title: value }))}
+        body={note.body}
+        setBody={(value) => setNote((prev) => ({ ...prev, body: value }))}
+        onSubmit={handleUpdate}
+        buttonText="Save Changes"
+      />
     </div>
   );
 }

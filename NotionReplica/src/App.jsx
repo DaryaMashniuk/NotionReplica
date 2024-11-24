@@ -6,29 +6,34 @@ import RequireAuth from "./components/RequireAuth";
 import MainLayout from "./routes/MainLayout";
 import Notes from "./routes/Notes";
 import About from "./routes/About";
-import {Register, registerUserAction} from "./routes/Register";
+import Register from "./routes/Register";
 import CreateNewNote from "./routes/CreateNewNote";
 import ViewNote from "./routes/viewNote";
 import UpdateNote from "./routes/UpdateNote";
+import ErrorComponent from "./components/ErrorComponent"
+import NotFound from "./routes/NotFound"
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register/>} action={registerUserAction}/>
+      <Route path="/register" element={<Register />} /*action={registerUserAction} *//>
       <Route
         path="/"
         element={
           <RequireAuth>
-            <MainLayout />
+            <React.Suspense fallback={<>...Loading</>}>
+              <MainLayout />
+            </React.Suspense>
           </RequireAuth>
         }
       >
-        <Route path="/" element={<About/>}/>
-        <Route path="/notes" element={<Notes/>} />
-        <Route path="/createNewNote" element={<CreateNewNote/>} />
-        <Route path="/viewNote" element={<ViewNote/>} />
-        <Route path="/editNote" element={<UpdateNote/>} />
+        <Route path="/" element={<About />} errorElement={<ErrorComponent />} />
+        <Route path="/notes" element={<Notes />} errorElement={<ErrorComponent />} />
+        <Route path="/createNewNote" element={<CreateNewNote />} errorElement={<ErrorComponent />} />
+        <Route path="/notes/:id" element={<ViewNote />} errorElement={<ErrorComponent />} />
+        <Route path="/notes/:id/edit" element={<UpdateNote />} errorElement={<ErrorComponent />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </>
   )

@@ -1,44 +1,44 @@
-import { Link } from "react-router-dom";
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { UserContext } from "../components/UserContextProvider";
+import NoteForm from "../components/NoteForm";
+import NotePageHeader from "../components/NotePageHeader";
+import API from "../utils/API";
 
-function CreateNewNote(props) {
-    const [title,setTitle] = useState("");
-    const [body,setBody] = useState("");
-    const userContext = useContext(UserContext)
-    const userId = userContext.user.id;
+function CreateNewNote() {
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const userContext = useContext(UserContext);
+  const userId = userContext.user.id;
+  const navigate = useNavigate();
 
+  const handleCreate = async () => {
+    const date = new Date();
     const newNote = {
-        //id : uuidv4(),
-        userId: userId,
-        title : title,
-        body : body,
-        created: Date().toLocaleString()
-    }
+      id: uuidv4(),
+      userId: userId,
+      title: title,
+      body: body,
+      created: date.toLocaleDateString("en-GB"),
+    };
 
-    const addNewNote= async()=> {
-        const res = await fetch(`http://localhost:5001/notes`, {
-            method: "POST",
-            headers: {'Content-Type' : 'application/json'},
-            body: JSON.stringify(newNote)
-        })
-        if (!res.ok) {
-            throw new Error("Failed to add note")
-        }
-        const postNewNote = await res.json();
-        return postNewNote
-    }
+    await API.createNote(newNote);
+    navigate(`/notes/${newNote.id}`);
+  };
 
   return (
-    <div className="prose flex flex-col gap-5">
-      <Link to="/notes">Back</Link>
-      <h1>Create new note</h1>
-      <input type="text" placeholder="Name" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <input placeholder="Note text..." type="test" value={body} onChange={(e) => setBody(e.target.value)} />
-
-      <button onClick={addNewNote}>Add new note</button>
-
+    <div className="container mx-auto p-4 flex flex-col items-center">
+      <NotePageHeader to="/notes" />
+      <h1 className="text-3xl font-bold mb-6">Create New Note</h1>
+      <NoteForm
+        title={title}
+        setTitle={setTitle}
+        body={body}
+        setBody={setBody}
+        onSubmit={handleCreate}
+        buttonText="Add Note"
+      />
     </div>
   );
 }

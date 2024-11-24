@@ -1,90 +1,156 @@
-import React from "react";
-import { useState, useContext } from "react";
-import { z } from "zod";
+import React, { useContext, useState } from "react";
+import { Form, Link, redirect, useNavigate } from "react-router-dom";
 import { UserRegister } from "../utils/validation";
-import { Form, Link, redirect , useNavigate, useActionData} from "react-router-dom";
+import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import { UserContext } from "../components/UserContextProvider";
 
-function Register() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [repeatPassword, setRepeatPassword] = useState("")
-    const [errors, setErrors] = useState(null);
-    const userContext = useContext(UserContext);
-    const navigate = useNavigate();
-    const actionData = useActionData();
+export default  function Register() {
+  const userContext=useContext(UserContext);
+  const date = new Date();
+  const [formData, setFormData] = useState({
+    id: uuidv4(),
+    email: "",
+    password: "",
+    repeatPassword: "",
+    name: "",
+    nickname: "",
+    age: "",
+    gender: "Other",
+    registerDate: date.toLocaleDateString("en-GB")
+  });
+  const [errors, setErrors] = useState(null);
+  const navigate = useNavigate();
 
-    const validate = () => {
-        try {
-          UserRegister.parse({
-            email,
-            password,
-            repeatPassword
-          });
-          setErrors(null);
-          return true;
-        } catch (err) {
-          if (err instanceof z.ZodError) {
-            setErrors(err.format());
-          }
-          return false;
-        }
-      };
-
-      if (actionData) {
-        userContext.onChange(actionData);
-        navigate('/')
+  const validate = () => {
+    try {
+      UserRegister.parse({
+        ...formData,
+        age: parseInt(formData.age, 10),
+      });
+      setErrors(null);
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setErrors(err.format());
       }
+      return false;
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    const hashedPassword = await bcrypt.hash(formData.password, 10);
+
+    const user = {
+      ...formData,
+      password: hashedPassword,
+      age: parseInt(formData.age, 10),
+    };
+
+    const response = await fetch("http://localhost:5001/users");
+    const users = await response.json();
+
+    const emailExists = users.some((u) => u.email === user.email);
+
+    if (emailExists) {
+      setErrors({ email: { _errors: ["Email уже используется"] } });
+      return;
+    }
+
+    await fetch("http://localhost:5001/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user),
+    });
+
+    userContext.onChange(user)
+    navigate("/")
+  };
 
   return (
-    <div className="prose flex flex-col gap-5">
-      <h1>Sign up</h1>
-      <Form action="/register" method="post" onSubmit={(e) => {
-          if (!validate()) {
-            e.preventDefault();
-          }
-        }}>
-        <input name="email" type="Email" placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        {errors?.email && <div className="text-red-400">{errors?.email?._errors[0]}</div>}
+    <div className="p-4 md:max-w-md mx-auto mt-8 bg-white shadow-lg rounded-lg">
+      <h1 className="text-2xl font-bold text-center mb-4">Регистрация</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          className="p-2 border rounded"
+        />
+        {errors?.email && <div className="text-red-400">{errors.email._errors[0]}</div>}
 
-        <input name="password" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        {errors?.password && <div className="text-red-400">{errors?.password?._errors[0]}</div>}
+        <input
+          name="password"
+          type="password"
+          placeholder="Пароль"
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          className="p-2 border rounded"
+        />
+        {errors?.password && <div className="text-red-400">{errors.password._errors[0]}</div>}
 
-        <input placeholder="Repeat password" type="password" value={repeatPassword} onChange={(e) => setRepeatPassword(e.target.value)} />
-        {errors?.repeatPassword && <div className="text-red-400">{errors?.repeatPassword?._errors[0]}</div>}
-        <input type="hidden" name="registerDate" value={Date().toLocaleString()}/>
-        <button type="submit">Register</button>
-      </Form>
-      <Link to="/login">Already have an account? Log in</Link>
+        <input
+          name="repeatPassword"
+          type="password"
+          placeholder="Повторите пароль"
+          value={formData.repeatPassword}
+          onChange={(e) => setFormData({ ...formData, repeatPassword: e.target.value })}
+          className="p-2 border rounded"
+        />
+        {errors?.repeatPassword && <div className="text-red-400">{errors.repeatPassword._errors[0]}</div>}
+
+        <input
+          name="name"
+          placeholder="Имя"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          className="p-2 border rounded"
+        />
+        {errors?.name && <div className="text-red-400">{errors.name._errors[0]}</div>}
+
+        <input
+          name="nickname"
+          placeholder="Никнейм"
+          value={formData.nickname}
+          onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
+          className="p-2 border rounded"
+        />
+        {errors?.nickname && <div className="text-red-400">{errors.nickname._errors[0]}</div>}
+
+        <input
+          name="age"
+          type="number"
+          placeholder="Возраст"
+          value={formData.age}
+          onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+          className="p-2 border rounded"
+        />
+        {errors?.age && <div className="text-red-400">{errors.age._errors[0]}</div>}
+
+        <select
+          name="gender"
+          value={formData.gender}
+          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+          className="p-2 border rounded"
+        >
+          <option value="Male">Мужской</option>
+          <option value="Female">Женский</option>
+          <option value="Other">Другое</option>
+        </select>
+
+        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Зарегистрироваться
+        </button>
+      </form>
+      <Link to="/login" className="block text-center mt-4">Уже есть аккаунт? Войти</Link>
     </div>
   );
 }
 
-const registerUser =async ({id, email, password, registerDate})=> {
-  const res = await fetch(`http://localhost:5001/users` , {
-    method: 'POST',
-    headers: {'Content-Type' : 'application/json'},
-    body: JSON.stringify({ id, email, password, registerDate })
-  })
-  if (!res.ok) {
-    throw new Error("Failed to register user.");
-  }
-  const newUser = await res.json()
-
-  return newUser;
-}
-
-const registerUserAction =async ({request}) => {
-  const formData = await request.formData();
-
-  const newUser = {
-    id: uuidv4(),
-    email: formData.get('email'),
-    password: formData.get('password'),
-    registerDate: formData.get('registerDate')
-  }
-  const postUser = await registerUser(newUser)
-  return postUser//redirect("/")
-}
-export {Register , registerUserAction};
+;

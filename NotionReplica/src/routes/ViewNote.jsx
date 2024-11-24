@@ -1,44 +1,64 @@
-import { Link } from "react-router-dom";
-import { useState, useContext } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { UserContext } from "../components/UserContextProvider";
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import API from "../utils/API";
+import bin from "../assets/delete.png";
+import edit from "../assets/edit.png";
 
-function ViewNote(props) {
-    const [title,setTitle] = useState("");
-    const [body,setBody] = useState("");
-    const userContext = useContext(UserContext)
-    const userId = userContext.user.id;
+function ViewNote() {
+  const { id } = useParams();
+  const [note, setNote] = useState(null);
+  const navigate = useNavigate();
 
-    const newNote = {
-        //id : uuidv4(),
-        userId: userId,
-        title : title,
-        body : body,
-        created: Date().toLocaleString()
+  useEffect(() => {
+    const fetchNote = async () => {
+      try {
+        console.log("Fetching note with id:", id);
+        const fetchedNote = await API.fetchNoteById(id);
+        setNote(fetchedNote);
+      } catch (error) {
+        console.error("Failed to fetch note", error);
+      }
+    };
+
+    fetchNote();
+  }, [id]);
+
+  const deleteNote = async () => {
+    try {
+      await API.deleteNote(id);
+      navigate("/notes");
+    } catch (error) {
+      console.error("Failed to delete note", error);
     }
+  };
 
-    const addNewNote= async()=> {
-        const res = await fetch(`http://localhost:5001/notes`, {
-            method: "POST",
-            headers: {'Content-Type' : 'application/json'},
-            body: JSON.stringify(newNote)
-        })
-        if (!res.ok) {
-            throw new Error("Failed to add note")
-        }
-        const postNewNote = await res.json();
-        return postNewNote
-    }
+  if (!note) {
+    return <div className="text-center text-gray-500">Loading...</div>;
+  }
 
   return (
-    <div className="prose flex flex-col gap-5">
-      <Link to="/notes">Back</Link>
-      <h1>Note</h1>
-      <input type="text" placeholder="Name" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <input placeholder="Note text..." type="test" value={body} onChange={(e) => setBody(e.target.value)} />
+    <div className="container mx-auto p-4">
+      <Link to="/notes" className="text-black hover:underline mb-4 self-start">
+        Back
+      </Link>
+      <div className="bg-white shadow-md rounded-lg p-6 w-[75%] mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-center flex-1 break-all px-4">{note.title}</h1>
+          <div className="flex space-x-4">
+            <button onClick={deleteNote} aria-label="Delete" className="hover:bg-gray-100 rounded-full p-1">
+              <img src={bin} alt="Delete" className="h-6 w-6" />
+            </button>
+            <Link to={`/notes/${id}/edit`} aria-label="Edit">
+              <img src={edit} alt="Edit" className="h-6 w-6" />
+            </Link>
+          </div>
+        </div>
 
-      <button onClick={addNewNote}>Add new note</button>
-
+        {/* Тело заметки как отдельный блок */}
+        <div className="bg-gray-50 border border-gray-200 rounded-md p-4 mt-4">
+          <p className="text-gray-700 break-all">{note.body}</p>
+        </div>
+      </div>
     </div>
   );
 }

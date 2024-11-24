@@ -1,65 +1,60 @@
-import React, { useContext } from "react";
-import { useState } from "react";
-import { z } from "zod";
-import { UserLogin  } from "../utils/validation";
+import React, { useContext, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import bcrypt from "bcryptjs";
 import { UserContext } from "../components/UserContextProvider";
-import { useNavigate, Link} from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState(null);
-
-  const userContext = useContext(UserContext);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const validate = () => {
-    try {
-      UserLogin.parse({
-        email,
-        password,
-      });
-      setErrors(null);
-      return true;
-    } catch (err) {
-      console.log(err)
-      if (err instanceof z.ZodError) {
-        setErrors(err.format());
-      }
-      return false;
+  const userContext = useContext(UserContext)
+  const handleLogin = async () => {
+    const response = await fetch(`http://localhost:5001/users?email=${email}`);
+    const users = await response.json();
+    const user = users[0];
+
+    if (!user) {
+      setError("Пользователь не существует");
+      return;
     }
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      setError("Неверный пароль");
+      return;
+    }
+
+    userContext.onChange(user)
+    navigate("/")
   };
-  function handleLogin() {
-    if (!validate()) {
-        return false;
-    }
-    const query = new URLSearchParams({
-        email,
-        password
-    }).toString()
-    console.log(query)
-    fetch(`http://localhost:5001/users?${query}`)
-    .then((r)=> r.json())
-    .then((users)=> users[0])
-    .then((user)=> {
-        if (user) {
-            userContext.onChange(user)
-            navigate("/")
-        } else {
-            setErrors('Invalid user')
-        }
-    })
-  }
+  console.log(password)
   return (
-    <div className="prose flex flex-col gap-5">
-      <h1>Login</h1>
-      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      {errors?.email && <div className="text-red-400">{errors?.email?._errors[0]}</div>}
-
-      <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      {errors?.password && <div className="text-red-400">{errors?.password?._errors[0]}</div>}
-
-      <button onClick={handleLogin}>Login</button>
-      <Link to="/register">Зарегистрироваться</Link>
+    <div className="flex items-center justify-center h-screen">
+      <div className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-8 border border-gray-200 rounded-md">
+        <div className="prose flex flex-col gap-5">
+          <h1 className="text-center text-2xl">Вход</h1>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+          />
+          <input
+            type="password"
+            placeholder="Пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+          />
+          {error && <div className="text-red-400 text-center">{error}</div>}
+          <button onClick={handleLogin} className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Войти
+          </button>
+          <Link to="/register" className="text-center block">Регистрация</Link>
+        </div>
+      </div>
     </div>
   );
 }
