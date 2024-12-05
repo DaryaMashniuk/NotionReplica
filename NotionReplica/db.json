@@ -1,4 +1,38 @@
 {
-  "users": [],
-  "notes": []
+  "users": [
+    {
+      "id": "c067e54d-3457-4f5c-9b11-e204b66795c0",
+      "email": "a5@mail.ru",
+      "password": "$2a$10$FKivI7bJ9aRjUGzOFrg09uit0HofZbbjofL7bEoQFzKC.uRXnKatG",
+      "repeatPassword": "123456Aa",
+      "name": "Darya",
+      "nickname": "dar",
+      "age": 20,
+      "gender": "Other",
+      "registerDate": "04/12/2024"
+    }
+  ],
+  "notes": [
+    {
+      "title": "Do database exercises",
+      "body": "Watch all of his videos\nRead articles in our site....",
+      "created": "04/12/2024",
+      "userId": "c067e54d-3457-4f5c-9b11-e204b66795c0",
+      "id": "09e99e8b-fde8-4044-bae2-001290ccc7e2"
+    },
+    {
+      "id": "a8a7a9c5-8fa0-4c5b-834c-d173cbcdf489",
+      "userId": "c067e54d-3457-4f5c-9b11-e204b66795c0",
+      "title": "User",
+      "body": "Download user on login\n",
+      "created": "05/12/2024"
+    },
+    {
+      "id": "467ae008-d5bf-463b-926a-3fa340ec0cca",
+      "userId": "c067e54d-3457-4f5c-9b11-e204b66795c0",
+      "title": "Notes",
+      "body": "Get notes on notes page\nHandleDelete",
+      "created": "05/12/2024"
+    }
+  ]
 }

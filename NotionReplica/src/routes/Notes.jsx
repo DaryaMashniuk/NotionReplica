@@ -3,24 +3,30 @@ import { UserContext } from "../components/UserContextProvider";
 import Note from "../components/Note/Note";
 import { Link } from "react-router-dom";
 import API from "../utils/API";
+import {useDispatch, useSelector} from 'react-redux'
+import { fetchNotes } from "../redux/notes/actions/actions";
 
 function Notes() {
-  const [notes, setNotes] = useState([]);
+  const dispatch = useDispatch();
+  const { notes } = useSelector((store) => store)
+  //const [notes, setNotes] = useState([]);
   const userContext = useContext(UserContext);
   const userId = userContext.user.id;
+  useEffect(()=> {
+    dispatch(fetchNotes(userId))
+  },[dispatch])
+  // useEffect(() => {
+  //   getNotes();
+  // }, []);
 
-  useEffect(() => {
-    getNotes();
-  }, []);
-
-  const getNotes = async () => {
-    try {
-      const fetchedNotes = await API.fetchNotes(userId);
-      setNotes(fetchedNotes);
-    } catch (error) {
-      console.error("Error fetching notes:", error);
-    }
-  };
+  // const getNotes = async () => {
+  //   try {
+  //     const fetchedNotes = await API.fetchNotes(userId);
+  //     setNotes(fetchedNotes);
+  //   } catch (error) {
+  //     console.error("Error fetching notes:", error);
+  //   }
+  // };
 
   const handleDelete = (id) => {
     setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
