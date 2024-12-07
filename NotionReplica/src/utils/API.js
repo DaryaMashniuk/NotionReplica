@@ -29,9 +29,30 @@ const API = {
     return res.json();
   },
   fetchNoteById: async (id) => {
-    const res = await fetch(`http://localhost:5001/notes/${id}`);
+    const res = await fetch(`${BASE_URL}/notes/${id}`);
     if (!res.ok) throw new Error("Failed to fetch note");
     return res.json();
+  },
+  fetchUsers: async () => {
+    const response = await fetch(`${BASE_URL}/users`);
+    return await response.json();
+  },
+  fetchUserById: async (id) => {
+    const response = await fetch(`${BASE_URL}/users/${id}`);
+    return await response.json();
+  },
+  fetchUserByEmail: async (email) => {
+    const users = await fetch(`${BASE_URL}/users`);
+    const userList = await users.json();
+    return userList.find((user) => user.email === email);
+  },
+  createUser: async (user) => {
+    const response = await fetch(`${BASE_URL}/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user),
+    });
+    return await response.json();
   },
 };
 

@@ -1,21 +1,23 @@
-import React, { useContext } from "react";
-import { UserContext } from "./UserContextProvider";
-import { Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginById } from "../redux/user/actions/actions";
 
 function RequireAuth({ children }) {
-  const context = useContext(UserContext);
-  if (!context) {
-    console.error("RequireAuth must be used within a UserContextProvider");
-    return <Navigate to="/login" replace />;
-  }
-  const { user, loading } = useContext(UserContext);
+  const { user, loading } = useSelector((store) => store.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
+  useEffect(() => {
+    const id = localStorage.getItem("userId");
+    if (id && !user) {
+      console.log(id)
+      dispatch(loginById(id));
+      navigate("/")
+    }
+  }, [dispatch, user]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  if (!user?.id) {
-    return <Navigate to="/login" replace />;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (!user) return <Navigate to="/login" replace />;
 
   return children;
 }

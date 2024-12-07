@@ -1,44 +1,31 @@
 import React, { useContext, useEffect, useState } from "react";
-import { UserContext } from "../components/UserContextProvider";
 import Note from "../components/Note/Note";
 import { Link } from "react-router-dom";
 import API from "../utils/API";
 import {useDispatch, useSelector} from 'react-redux'
-import { fetchNotes } from "../redux/notes/actions/actions";
+import { fetchNotes, deleteNote } from "../redux/notes/actions/actions";
 
 function Notes() {
   const dispatch = useDispatch();
-  const { notes } = useSelector((store) => store)
-  //const [notes, setNotes] = useState([]);
-  const userContext = useContext(UserContext);
-  const userId = userContext.user.id;
+  const { notes, user } = useSelector((store) => store)
+
+  const userId = user.user.id;
   useEffect(()=> {
     dispatch(fetchNotes(userId))
-  },[dispatch])
-  // useEffect(() => {
-  //   getNotes();
-  // }, []);
+  },[])
+  console.log(notes.notes)
 
-  // const getNotes = async () => {
-  //   try {
-  //     const fetchedNotes = await API.fetchNotes(userId);
-  //     setNotes(fetchedNotes);
-  //   } catch (error) {
-  //     console.error("Error fetching notes:", error);
-  //   }
-  // };
 
   const handleDelete = (id) => {
-    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+    dispatch(deleteNote(id))
   };
-
   return (
     <div className="flex flex-col items-center mx-auto">
       <div className="w-[75%] max-w-2xl prose mx-auto">
         <h1 className="text-center">Notes</h1>
         <Link to="/createNewNote" className="text-center block mb-4">Add new note</Link>
-        {notes.length > 0 ? (
-          notes.slice().reverse().map((note) => {
+        {notes.notes.length > 0 ? (
+          notes.notes.slice().reverse().map((note) => {
             return <Note key={note.id} note={note} onDelete={() => handleDelete(note.id)} />;
           })
         ) : (

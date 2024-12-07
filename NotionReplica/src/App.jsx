@@ -1,28 +1,27 @@
 import React from "react";
-import { createBrowserRouter, RouterProvider, createRoutesFromElements, Route, Routes } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, createRoutesFromElements, Route } from "react-router-dom";
 import Login from "./routes/Login";
-import UserContextProvider from "./components/UserContextProvider";
+import Register from "./routes/Register";
 import RequireAuth from "./components/RequireAuth";
 import MainLayout from "./routes/MainLayout";
-import Notes from "./routes/Notes";
 import About from "./routes/About";
-import Register from "./routes/Register";
+import Notes from "./routes/Notes";
 import CreateNewNote from "./routes/CreateNewNote";
-import ViewNote from "./routes/viewNote";
+import ViewNote from "./routes/ViewNote";
 import UpdateNote from "./routes/UpdateNote";
-import ErrorComponent from "./components/ErrorComponent"
-import NotFound from "./routes/NotFound"
+import ErrorComponent from "./components/ErrorComponent";
+import NotFound from "./routes/NotFound";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} /*action={registerUserAction} *//>
+      <Route path="/register" element={<Register />} />
       <Route
         path="/"
         element={
           <RequireAuth>
-            <React.Suspense fallback={<>...Loading</>}>
+            <React.Suspense fallback={<div>...Loading</div>}>
               <MainLayout />
             </React.Suspense>
           </RequireAuth>
@@ -40,11 +39,7 @@ const router = createBrowserRouter(
 );
 
 function App() {
-  return (
-    <UserContextProvider>
-      <RouterProvider router={router} fallbackElement={<div>Loading...</div>} />
-    </UserContextProvider>
-  );
+  return <RouterProvider router={router} fallbackElement={<div>Loading...</div>} />;
 }
 
 export default App;

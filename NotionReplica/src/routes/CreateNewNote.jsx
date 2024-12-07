@@ -1,19 +1,22 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { UserContext } from "../components/UserContextProvider";
 import NoteForm from "../components/NoteForm";
 import NotePageHeader from "../components/NotePageHeader";
 import API from "../utils/API";
+import { useSelector, useDispatch } from "react-redux";
+import { createNewNote } from "../redux/notes/actions/actions";
+
 
 function CreateNewNote() {
   const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const userContext = useContext(UserContext);
-  const userId = userContext.user.id;
+  const [body, setBody] = useState("");  
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((store) => store.user);
+  const userId = user.id;
 
-  const handleCreate = async () => {
+  const handleCreate = async()=> {
     const date = new Date();
     const newNote = {
       id: uuidv4(),
@@ -21,11 +24,10 @@ function CreateNewNote() {
       title: title,
       body: body,
       created: date.toLocaleDateString("en-GB"),
-    };
-
-    await API.createNote(newNote);
+    }
+    dispatch(createNewNote(newNote))
     navigate(`/notes/${newNote.id}`);
-  };
+  }
 
   return (
     <div className="container mx-auto p-4 flex flex-col items-center">

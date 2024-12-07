@@ -1,13 +1,17 @@
-import React, { useContext, useState } from "react";
-import { Form, Link, redirect, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { UserRegister } from "../utils/validation";
+import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { v4 as uuidv4 } from "uuid";
-import { UserContext } from "../components/UserContextProvider";
+import { registerUser } from "../redux/user/actions/actions";
 
-export default  function Register() {
-  const userContext=useContext(UserContext);
+export default function Register() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { errorRegister, loading } = useSelector((store) => store.user);
+
   const date = new Date();
   const [formData, setFormData] = useState({
     id: uuidv4(),
@@ -18,10 +22,9 @@ export default  function Register() {
     nickname: "",
     age: "",
     gender: "Other",
-    registerDate: date.toLocaleDateString("en-GB")
+    registerDate: date.toLocaleDateString("en-GB"),
   });
   const [errors, setErrors] = useState(null);
-  const navigate = useNavigate();
 
   const validate = () => {
     try {
@@ -51,24 +54,11 @@ export default  function Register() {
       age: parseInt(formData.age, 10),
     };
 
-    const response = await fetch("http://localhost:5001/users");
-    const users = await response.json();
-
-    const emailExists = users.some((u) => u.email === user.email);
-
-    if (emailExists) {
-      setErrors({ email: { _errors: ["Email уже используется"] } });
-      return;
-    }
-
-    await fetch("http://localhost:5001/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user),
+    dispatch(registerUser(user)).then(() => {
+      if (!errorRegister) {
+        navigate("/");
+      }
     });
-
-    userContext.onChange(user)
-    navigate("/")
   };
 
   return (
@@ -144,13 +134,18 @@ export default  function Register() {
           <option value="Other">Другое</option>
         </select>
 
-        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Зарегистрироваться
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          disabled={loading}
+        >
+          {loading ? "Регистрация..." : "Зарегистрироваться"}
         </button>
+        {errorRegister && <div className="text-red-400 text-center">{errorRegister}</div>}
       </form>
-      <Link to="/login" className="block text-center mt-4">Уже есть аккаунт? Войти</Link>
+      <Link to="/login" className="block text-center mt-4">
+        Уже есть аккаунт? Войти
+      </Link>
     </div>
   );
 }
-
-;

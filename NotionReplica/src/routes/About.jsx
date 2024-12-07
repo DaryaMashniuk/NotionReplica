@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { UserContext } from '../components/UserContextProvider';
+import { useSelector } from 'react-redux';
 
 function About() {
-    const { user } = useContext(UserContext);
+    const { user } = useSelector((store) => store.user);
 
     return (
         <div className="bg-white text-black p-4 about-me rounded-lg shadow-lg">

@@ -8,7 +8,6 @@ import API from "../../utils/API";
 function Note({ note, onDelete }) {
   
   const deleteNote = () => {
-    API.deleteNote(note.id);
     onDelete(note.id);
   };
 

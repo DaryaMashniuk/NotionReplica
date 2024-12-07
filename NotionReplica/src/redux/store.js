@@ -1,13 +1,20 @@
-import {applyMiddleware, combineReducers, createStore } from 'redux'
-import {composeWithDevTools} from '@redux-devtools/extension'
-import notesReducer from './notes/reducer/reducer';
-import userReducer from './user/reducer/reducer'
-import thunk from 'redux-thunk'
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import { composeWithDevTools } from "@redux-devtools/extension";
+import {thunk} from "redux-thunk";
+import userReducer from "./user/reducer/reducer";
+import notesReducer from "./notes/reducer/reducer";
 
-export default createStore(combineReducers({
-    notes: notesReducer,
-    user: userReducer
-}),
-   composeWithDevTools(applyMiddleware(thunk))
+
+const rootReducer = combineReducers({
+  user: userReducer,
+  notes: notesReducer,
+});
+
+const store = createStore(
+  rootReducer,
+ 
+  composeWithDevTools(applyMiddleware(thunk))
 );
-//.withExtraArgument(Api)
+
+
+export default store;

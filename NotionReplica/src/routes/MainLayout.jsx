@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { UserContext } from "../components/UserContextProvider";
+import { useSelector } from "react-redux";
 
 function MainLayout() {
-    const { user } = useContext(UserContext);
+    const { user} = useSelector((store) => store.user);
 
     return (
         <div className="flex flex-col min-h-screen">
