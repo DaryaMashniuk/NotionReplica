@@ -8,7 +8,9 @@
     "dev:db": "json-server --watch db.json --port 5001",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:build": "npm run build && json-server --watch db.json --port 5001"
+
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -27,6 +29,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",

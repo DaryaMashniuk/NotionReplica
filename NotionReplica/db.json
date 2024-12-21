@@ -1,4 +1,27 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": "e43ca85d-decf-4e67-993f-5aa0979530cc",
+      "email": "a5@mail.ru",
+      "password": "$2a$10$iwvffm6E.mDwyYk1IbGBaujcNq.iKX1vb.pyfCvAdDAkCiYPftJbS",
+      "repeatPassword": "123456Aa",
+      "name": "Darya",
+      "nickname": "dar",
+      "age": 30,
+      "gender": "Other",
+      "registerDate": "21/12/2024"
+    },
+    {
+      "id": "b9880899-bb74-4069-9b80-74f5ae43dcd0",
+      "email": "a1@mail.ru",
+      "password": "$2a$10$88V79SFTTdVk/Gl7dDFXMeO98o9WL4ibeNoOFbDRUA8nzFCVitGde",
+      "repeatPassword": "123456Aa",
+      "name": "Darya",
+      "nickname": "dar",
+      "age": 30,
+      "gender": "Other",
+      "registerDate": "21/12/2024"
+    }
+  ],
   "notes": []
 }
